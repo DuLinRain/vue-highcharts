@@ -1,11 +1,32 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <VhBar v-for="n in 4" :title="title" :initOptions="options" :series="series"/>
+    <v-highcharts :title="title" :initOptions="options" :series="series"/>
+    <button @click="handleClicked">更新数据</button>
   </div>
 </template>
 
 <script>
+var axios = require('axios')
+var MockAdapter = require('axios-mock-adapter')
+
+// This sets the mock adapter on the default instance
+var mock = new MockAdapter(axios)
+
+// Mock any GET request to /users
+// arguments for reply are (status, data, headers)
+mock.onGet('/users').reply(200, {
+    series: [{                                 // 指定数据列
+        name: '小明',
+        id: '小明',                          // 数据列名
+        data: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
+    }, {
+        name: '小红',
+        id: '小红',
+        data: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
+    }]
+})
+
 export default {
     name: 'HelloWorld',
     data () {
@@ -50,17 +71,25 @@ export default {
             }
         }
     },
-    mounted () {
-        setTimeout(() => {
-            this.title.text = '测试更新标题'
-        }, 3000)
-        setTimeout(() => {
-            this.series.push({
-                name: '小花',
-                id: '小花',
-                data: [25, 77, 13]
+    methods: {
+        handleClicked () {
+            let _ = this
+            axios.get('/users')
+            .then(function (response) {
+                // console.log(response.data.series)
+                _.series = [{                                 // 指定数据列
+                    name: '小明',
+                    id: '小明',                          // 数据列名
+                    data: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
+                }, {
+                    name: '小红',
+                    id: '小红',
+                    data: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
+                }]
             })
-        }, 5000)
+        }
+    },
+    mounted () {
     }
 }
 </script>
